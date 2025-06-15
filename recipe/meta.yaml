@@ -1,4 +1,4 @@
-{% set version = "1.2.0" %}
+{% set version = "1.2.1" %}
 {% set posix = 'm2-' if win else '' %}
 
 package:
@@ -9,7 +9,7 @@ source:
   url:
     - {{ cran_mirror }}/src/contrib/cutpointr_{{ version }}.tar.gz
     - {{ cran_mirror }}/src/contrib/Archive/cutpointr/cutpointr_{{ version }}.tar.gz
-  sha256: 1521b77e306eaa1be50914c62254ce270838050ee6b8df81370dc2700b6efb93
+  sha256: f3d8ee2d6f8ebf15fad502a74b9d5a0a6534a4b75e2a7a09df4c14bbccfff20a
 
 build:
   number: 0
@@ -17,7 +17,9 @@ build:
     - lib/R/lib/
     - lib/
   missing_dso_whitelist:
-    - '*/R.dll'           # [win]
+    - '*/R.dll'        # [win]
+    - '*/Rblas.dll'    # [win]
+    - '*/Rlapack.dll'  # [win]
 
 requirements:
   build:
@@ -33,6 +35,10 @@ requirements:
     - {{ posix }}coreutils         # [win]
     - {{ posix }}zip               # [win]
     - cross-r-base {{ r_base }}    # [build_platform != target_platform]
+    # The libstdc++.dll provided in libstdcxx v15.1.0 build h904f734_2
+    # is missing `_ZSt21ios_base_library_initv`.
+    # see: conda-forge/ctng-compilers-feedstock#174
+    - libstdcxx !=14.3.0,!=15.1.0  # [win]
   host:
     - r-base
     - r-rcpp >=0.12.12
@@ -57,6 +63,8 @@ requirements:
     - r-tibble >=3.0.0
     - r-tidyr >=1.0.0
     - r-tidyselect >=1.1.0
+  run_constrained:
+    - libstdcxx !=14.3.0,!=15.1.0           # [win]
 
 test:
   commands:
